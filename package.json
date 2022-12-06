@@ -1,0 +1,33 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/krsamir/VSAPP-backend.git"
+  },
+  "author": "samir",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/krsamir/VSAPP-backend/issues"
+  },
+  "homepage": "https://github.com/krsamir/VSAPP-backend#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.7.0",
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.29.4",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.26.0",
+    "yargs": "^17.3.1"
+  }
+}
