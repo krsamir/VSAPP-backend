@@ -60,10 +60,13 @@ authController.login = async (req, res) => {
               }
             );
             res.cookie("sid", jwtToken, { path: "/" });
-            res.cookie("role", assignedRole, { path: "/" });
+            if (assignedRole) {
+              res.cookie("role", assignedRole, { path: "/" });
+            }
             res.send({
               message: "Succesfull login.",
               status: STATUS.SUCCESS,
+              role: assignedRole,
             });
           } else {
             removeCookies(res);
@@ -81,14 +84,14 @@ authController.login = async (req, res) => {
       } else {
         removeCookies(res);
         res
-          .status(RESPONSE_STATUS.OK_200)
+          .status(RESPONSE_STATUS.FORBIDDEN_403)
           .send({ message: "Invalid Credentials", status: STATUS.FAILURE });
       }
     })
     .catch((e) => {
       removeCookies(res);
       console.log(e);
-      res.send(e);
+      res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR_500).send(e);
     });
 };
 
