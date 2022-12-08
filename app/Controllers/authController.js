@@ -72,7 +72,10 @@ authController.login = async (req, res) => {
             removeCookies(res);
             res
               .status(RESPONSE_STATUS.FORBIDDEN_403)
-              .send({ message: "Invalid Credentials", status: STATUS.FAILURE });
+              .send({
+                message: "Wrong username/password.",
+                status: STATUS.FAILURE,
+              });
           }
         } else {
           removeCookies(res);
@@ -85,7 +88,10 @@ authController.login = async (req, res) => {
         removeCookies(res);
         res
           .status(RESPONSE_STATUS.FORBIDDEN_403)
-          .send({ message: "Invalid Credentials", status: STATUS.FAILURE });
+          .send({
+            message: "Wrong username/password.",
+            status: STATUS.FAILURE,
+          });
       }
     })
     .catch((e) => {
