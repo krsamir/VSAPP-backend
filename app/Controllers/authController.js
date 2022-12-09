@@ -64,18 +64,16 @@ authController.login = async (req, res) => {
               res.cookie("role", assignedRole, { path: "/" });
             }
             res.send({
-              message: "Succesfull login.",
+              message: "Successful login.",
               status: STATUS.SUCCESS,
               role: assignedRole,
             });
           } else {
             removeCookies(res);
-            res
-              .status(RESPONSE_STATUS.FORBIDDEN_403)
-              .send({
-                message: "Wrong username/password.",
-                status: STATUS.FAILURE,
-              });
+            res.status(RESPONSE_STATUS.FORBIDDEN_403).send({
+              message: "Wrong username/password.",
+              status: STATUS.FAILURE,
+            });
           }
         } else {
           removeCookies(res);
@@ -86,12 +84,10 @@ authController.login = async (req, res) => {
         }
       } else {
         removeCookies(res);
-        res
-          .status(RESPONSE_STATUS.FORBIDDEN_403)
-          .send({
-            message: "Wrong username/password.",
-            status: STATUS.FAILURE,
-          });
+        res.status(RESPONSE_STATUS.FORBIDDEN_403).send({
+          message: "Wrong username/password.",
+          status: STATUS.FAILURE,
+        });
       }
     })
     .catch((e) => {
