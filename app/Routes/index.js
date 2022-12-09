@@ -1,3 +1,4 @@
 import authRouter from "./authRoutes.js";
+import tenantRouter from "./tenantRoutes.js";
 
-export { authRouter };
+export { authRouter, tenantRouter };

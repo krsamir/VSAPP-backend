@@ -1,5 +1,4 @@
 import bcryptjs from "bcryptjs";
-import moment from "moment";
 import { Role, User, Tenants } from "../Database/Models/index.js";
 import { sanitizeObject } from "../../Utilities/ObjectHandlers.js";
 import { RESPONSE_STATUS, STATUS, ROLES } from "../../Constants.js";
@@ -51,7 +50,7 @@ authController.login = async (req, res) => {
             const jwtToken = jwt.sign(
               {
                 id: id,
-                email: username,
+                username,
                 role: assignedRole,
               },
               JWT_SECRET,
