@@ -10,7 +10,6 @@ const { JWT_SECRET, JWT_EXPIRATION_TIME } = process.env;
 authController.login = async (req, res) => {
   var { username, password } = req.body;
   const { _username, _password } = sanitizeObject({ username, password });
-  console.log(sanitizeObject({ username, password }));
   await User.findOne({
     attributes: ["id", "username", ["password", "hashedpassword"], "isActive"],
     where: {
@@ -91,7 +90,7 @@ authController.login = async (req, res) => {
     })
     .catch((e) => {
       removeCookies(res);
-      console.log(e);
+      console.trace(e);
       res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR_500).send(e);
     });
 };

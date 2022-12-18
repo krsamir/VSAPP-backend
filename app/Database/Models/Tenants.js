@@ -15,7 +15,14 @@ const Tenants = sequelize.define(
       defaultValue: true,
     },
   },
-  {}
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ["name", "branch"],
+      },
+    ],
+  }
 );
 
 export default Tenants;

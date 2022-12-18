@@ -24,6 +24,9 @@ export const RESPONSE_STATUS = Object.freeze({
 });
 
 export const STATUS = Object.freeze({
-  SUCCESS: 1,
   FAILURE: 0,
+  SUCCESS: 1,
+  DUPLICATE: 2,
 });
+
+export const SEQUELIZE_UNIQUE_CONSTRAINT = "SequelizeUniqueConstraintError";

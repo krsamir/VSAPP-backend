@@ -14,6 +14,7 @@ export const isAuthenticated = (req, res, next) => {
     req.role = decoded.role;
     next();
   } catch (e) {
+    removeCookies(res);
     console.log({
       message: `AUTHENTICATION REQUIRED. PLEASE LOGIN AGAIN.`,
       status: STATUS.FAILURE,
@@ -23,4 +24,9 @@ export const isAuthenticated = (req, res, next) => {
       status: STATUS.FAILURE,
     });
   }
+};
+
+export const removeCookies = (res) => {
+  res.clearCookie("sid", { path: "/" });
+  res.clearCookie("role", { path: "/" });
 };

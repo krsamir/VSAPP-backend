@@ -6,6 +6,9 @@ import { IS_SUPER_ADMIN } from "../middleWares/authorization.js";
 const authRouter = express.Router();
 authRouter.use(isAuthenticated);
 authRouter.use(IS_SUPER_ADMIN);
-authRouter.get("/", tenantController.getTenant);
-
+authRouter
+  .route("/")
+  .get(tenantController.getTenant)
+  .post(tenantController.createTenant)
+  .put(tenantController.updateTenant);
 export default authRouter;

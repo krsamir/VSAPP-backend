@@ -43,8 +43,8 @@ Task.addUserTable = () => {
     .then(() => {
       log(`User Table Created.`);
       User.create({
-        username: "superadmin",
-        name: "superadmin",
+        username: "admin",
+        name: "admin",
         password: hashedPassword,
         mobile: "7079583248",
         lastLogin: moment(),
@@ -53,7 +53,7 @@ Task.addUserTable = () => {
         role: 1,
       })
         .then(() => console.log("Data Created."))
-        .catch((e) => console.log(e));
+        .catch((e) => console.trace(e));
     })
     .catch((e) => {
       log(e);

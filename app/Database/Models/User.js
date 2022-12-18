@@ -31,6 +31,9 @@ const User = sequelize.define(
     isActive: {
       type: DataTypes.BOOLEAN,
     },
+    createdBy: {
+      type: DataTypes.INTEGER,
+    },
     loginCount: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
