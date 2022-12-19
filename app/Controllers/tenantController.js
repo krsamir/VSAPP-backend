@@ -6,6 +6,7 @@ import {
   STATUS,
 } from "../../Constants.js";
 import { config } from "dotenv";
+import sequelize from "../Database/Database.js";
 const tenantController = {};
 config();
 
@@ -52,30 +53,45 @@ tenantController.createTenant = async (req, res) => {
 };
 
 tenantController.updateTenant = async (req, res) => {
-  const { id, name, branch } = req.body;
-  const { _id, _name, _branch } = sanitizeObject({ id, name, branch });
-
-  res.send({ _id, _name, _branch });
-  // await Tenants.create({ name: _name, branch: _branch })
-  //   .then((data) => {
-  //     res
-  //       .status(RESPONSE_STATUS.CREATED_201)
-  //       .send({ status: STATUS.FAILURE, data, message: "Tenant Created." });
-  //   })
-  //   .catch((e) => {
-  //     if (e.name === SEQUELIZE_UNIQUE_CONSTRAINT) {
-  //       res.status(RESPONSE_STATUS.OK_200).send({
-  //         message: "Duplicate Value exists.",
-  //         issue: e.errors.map(({ message }) => message),
-  //         status: STATUS.FAILURE,
-  //       });
-  //     } else {
-  //       console.trace(e);
-  //       res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR_500).send({
-  //         message: `Issue while creating tenant`,
-  //         status: STATUS.FAILURE,
-  //       });
-  //     }
-  //   });
+  const { id, name, branch, status } = req.body;
+  await sequelize
+    .query(
+      `UPDATE Tenants SET name="${name}",branch="${branch}",status=${status} WHERE id=${id}`
+    )
+    .then((response) => {
+      const [result] = response;
+      if (result) {
+        const parsedResult = JSON.parse(JSON.stringify(result));
+        if (parsedResult?.affectedRows > 0) {
+          res
+            .status(RESPONSE_STATUS.OK_200)
+            .send({ message: "Tenant Updated.", status: STATUS.SUCCESS });
+        } else {
+          res
+            .status(RESPONSE_STATUS.OK_200)
+            .send({ message: "No changes.", status: STATUS.FAILURE });
+        }
+      } else {
+        res.status(RESPONSE_STATUS.OK_200).send({
+          message: "Unable to update tenant.",
+          status: STATUS.FAILURE,
+        });
+      }
+    })
+    .catch((e) => {
+      if (e.name === SEQUELIZE_UNIQUE_CONSTRAINT) {
+        res.status(RESPONSE_STATUS.OK_200).send({
+          message: "Duplicate Value exists.",
+          issue: e.errors.map(({ message }) => message),
+          status: STATUS.DUPLICATE,
+        });
+      } else {
+        console.trace(e);
+        res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR_500).send({
+          message: `Issue while creating tenant`,
+          status: STATUS.FAILURE,
+        });
+      }
+    });
 };
 export default tenantController;

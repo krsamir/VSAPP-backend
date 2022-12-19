@@ -9,6 +9,7 @@ const sequelize = new Sequelize(DB_DATABASE, DB_USER, DB_PASSWORD, {
   host: DB_HOST,
   dialect: "mysql",
   logging: false,
+  timezone: "+05:30",
 });
 
 try {
