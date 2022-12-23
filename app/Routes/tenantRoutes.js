@@ -11,4 +11,6 @@ authRouter
   .get(tenantController.getTenant)
   .post(tenantController.createTenant)
   .put(tenantController.updateTenant);
+
+authRouter.route("/:id").delete(tenantController.deleteTenant);
 export default authRouter;

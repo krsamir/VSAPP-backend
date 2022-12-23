@@ -94,4 +94,32 @@ tenantController.updateTenant = async (req, res) => {
       }
     });
 };
+
+tenantController.deleteTenant = async (req, res) => {
+  const { id } = req.params;
+  await Tenants.destroy({
+    where: {
+      id,
+    },
+  })
+    .then((response) => {
+      if (response === 1) {
+        res
+          .status(RESPONSE_STATUS.OK_200)
+          .send({ message: "Tenant Deleted.", status: STATUS.SUCCESS });
+      } else {
+        res.status(RESPONSE_STATUS.OK_200).send({
+          message: "Some issue while Deleting Tenant",
+          status: STATUS.FAILURE,
+        });
+      }
+    })
+    .catch((e) => {
+      console.trace(e);
+      res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR_500).send({
+        message: `Issue while Deleting tenant`,
+        status: STATUS.FAILURE,
+      });
+    });
+};
 export default tenantController;
