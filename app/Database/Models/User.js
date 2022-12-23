@@ -1,4 +1,5 @@
 import { DataTypes } from "sequelize";
+import bcryptjs from "bcryptjs";
 import sequelize from "../Database.js";
 import Role from "./Role.js";
 import Tenants from "./Tenants.js";
@@ -15,6 +16,11 @@ const User = sequelize.define(
     },
     password: {
       type: DataTypes.STRING,
+      set(value) {
+        const salt = bcryptjs.genSaltSync(10);
+        const hashedPassword = bcryptjs.hashSync(value, salt);
+        this.setDataValue("password", hashedPassword);
+      },
     },
     lastLogin: {
       type: DataTypes.DATE,

@@ -1,7 +1,6 @@
 import Tenants from "./app/Database/Models/Tenants.js";
 import Role from "./app/Database/Models/Role.js";
 import User from "./app/Database/Models/User.js";
-import bcryptjs from "bcryptjs";
 import { ROLES } from "./Constants.js";
 import moment from "moment";
 const Task = {};
@@ -37,15 +36,13 @@ Task.addRoleTable = () => {
 };
 
 Task.addUserTable = () => {
-  var salt = bcryptjs.genSaltSync(10);
-  var hashedPassword = bcryptjs.hashSync("admin", salt);
   User.sync()
     .then(() => {
       log(`User Table Created.`);
       User.create({
         username: "admin",
         name: "admin",
-        password: hashedPassword,
+        password: "admin",
         mobile: "7079583248",
         lastLogin: moment(),
         isActive: true,
