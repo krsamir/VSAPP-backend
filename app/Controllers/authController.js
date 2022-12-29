@@ -51,6 +51,7 @@ authController.login = async (req, res) => {
                 id: id,
                 username,
                 role: assignedRole,
+                tenant: tenant?.id,
               },
               JWT_SECRET,
               {

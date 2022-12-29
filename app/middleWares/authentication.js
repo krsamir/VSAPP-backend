@@ -12,16 +12,15 @@ export const isAuthenticated = (req, res, next) => {
     req.id = decoded.id;
     req.username = decoded.username;
     req.role = decoded.role;
+    req.tenant = decoded.tenant;
     next();
   } catch (e) {
     removeCookies(res);
     console.log({
       message: `AUTHENTICATION REQUIRED. PLEASE LOGIN AGAIN.`,
-      status: STATUS.FAILURE,
     });
     res.status(RESPONSE_STATUS.UNAUTHORIZED_401).send({
       message: `AUTHENTICATION REQUIRED. PLEASE LOGIN AGAIN.`,
-      status: STATUS.FAILURE,
     });
   }
 };

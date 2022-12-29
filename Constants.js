@@ -1,13 +1,16 @@
 export const ROLES = Object.freeze({
   USER: {
+    ID: 3,
     NAME: "user",
     VALUE: "1643951347925",
   },
   ADMIN: {
+    ID: 2,
     NAME: "admin",
     VALUE: "1643951279554",
   },
   SUPER_ADMIN: {
+    ID: 1,
     NAME: "super_admin",
     VALUE: "1645361933757",
   },

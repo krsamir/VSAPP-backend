@@ -18,6 +18,7 @@ tenantController.getTenant = async (req, res) => {
         .send({ message: "", data: response, status: STATUS.SUCCESS });
     })
     .catch((e) => {
+      console.trace(e);
       res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR_500).send({
         data: e,
         status: STATUS.FAILURE,

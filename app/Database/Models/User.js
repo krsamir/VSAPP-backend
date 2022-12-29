@@ -22,9 +22,6 @@ const User = sequelize.define(
         this.setDataValue("password", hashedPassword);
       },
     },
-    lastLogin: {
-      type: DataTypes.DATE,
-    },
     mobile: {
       type: DataTypes.STRING,
     },
@@ -38,11 +35,7 @@ const User = sequelize.define(
       type: DataTypes.BOOLEAN,
     },
     createdBy: {
-      type: DataTypes.INTEGER,
-    },
-    loginCount: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
+      type: DataTypes.STRING,
     },
   },
   {}
