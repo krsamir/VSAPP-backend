@@ -16,6 +16,10 @@ userRouter
   .post(
     CAPABILITY([ROLES.SUPER_ADMIN.VALUE, ROLES.ADMIN.VALUE]),
     userController.addUser
+  )
+  .put(
+    CAPABILITY([ROLES.SUPER_ADMIN.VALUE, ROLES.ADMIN.VALUE]),
+    userController.updateUser
   );
-
+userRouter.route("/:id").delete(userController.deleteUser);
 export default userRouter;
