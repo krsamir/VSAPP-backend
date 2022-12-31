@@ -42,9 +42,18 @@ userController.getAllUser = async (req, res) => {
             },
     })
       .then((data) => {
+        const parsedData = data.map((value) => {
+          const parsedvalue = value.toJSON();
+          return {
+            ...parsedvalue,
+            validTill: moment(parsedvalue.validTill).format(
+              `DD-MMM-YYYY HH:mm:ss`
+            ),
+          };
+        });
         res.status(RESPONSE_STATUS.OK_200).send({
           status: STATUS.SUCCESS,
-          data,
+          data: parsedData,
           message: "User List Fetched.",
         });
       })
