@@ -9,12 +9,12 @@ import {
 import { config } from "dotenv";
 import moment from "moment";
 import sequelize from "../Database/Database.js";
-
+import { Op } from "sequelize";
 const userController = {};
 config();
 
 userController.getAllUser = async (req, res) => {
-  const { role, tenant } = req;
+  const { role, tenant, id } = req;
   if (role === ROLES.ADMIN.VALUE && (tenant === undefined || tenant === null)) {
     res.status(RESPONSE_STATUS.OK_200).send({
       message: `Tenant/Shop not assigned. Please contact administrator!`,
@@ -35,7 +35,11 @@ userController.getAllUser = async (req, res) => {
               roleId: ROLES.USER.ID,
               tenantId: tenant,
             }
-          : {},
+          : {
+              id: {
+                [Op.ne]: id,
+              },
+            },
     })
       .then((data) => {
         res.status(RESPONSE_STATUS.OK_200).send({

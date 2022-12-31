@@ -6,7 +6,8 @@ import jwt from "jsonwebtoken";
 import { config } from "dotenv";
 const authController = {};
 config();
-const { JWT_SECRET, JWT_EXPIRATION_TIME } = process.env;
+const { JWT_SECRET, JWT_EXPIRATION_TIME, JWT_EXPIRATION_TIME_ADMIN } =
+  process.env;
 authController.login = async (req, res) => {
   var { username, password } = req.body;
   const { _username, _password } = sanitizeObject({ username, password });
@@ -55,7 +56,10 @@ authController.login = async (req, res) => {
               },
               JWT_SECRET,
               {
-                expiresIn: JWT_EXPIRATION_TIME,
+                expiresIn:
+                  role === ROLES.SUPER_ADMIN.VALUE || role === ROLES.ADMIN.VALUE
+                    ? JWT_EXPIRATION_TIME_ADMIN
+                    : JWT_EXPIRATION_TIME,
               }
             );
             res.cookie("sid", jwtToken, { path: "/" });
