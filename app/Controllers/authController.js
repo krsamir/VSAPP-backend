@@ -5,12 +5,13 @@ import {
   RESPONSE_STATUS,
   STATUS,
   ROLES,
-  TOKEN_VALIDITY_INTERVAL,
-  HOURS,
+  TOKEN_VALIDITY_INTERVAL_5,
+  MINUTES,
 } from "../../Constants.js";
 import jwt from "jsonwebtoken";
 import { config } from "dotenv";
 import moment from "moment";
+import sequelize from "../Database/Database.js";
 const authController = {};
 config();
 const { JWT_SECRET, JWT_EXPIRATION_TIME, JWT_EXPIRATION_TIME_ADMIN } =
@@ -122,33 +123,41 @@ authController.validity = async (req, res) => {
       token: _otp,
     },
   })
-    .then((result) => {
+    .then(async (result) => {
       if (result) {
         const { isActive, validTill } = result.toJSON();
         if (isActive) {
           const tempToken = Math.random().toString().substring(2, 8);
           if (moment().isSameOrBefore(moment(validTill))) {
-            User.update(
-              {
-                password: null,
-                token: tempToken,
-                validTill: moment()
-                  .add(TOKEN_VALIDITY_INTERVAL, HOURS)
-                  .format("YYYY-MM-DD HH:mm:ss"),
-              },
-              { where: { username: _username, token: _otp } }
-            )
+            await sequelize
+              .query(
+                `UPDATE Users SET password=null,username="${_username}",token='${tempToken}',validTill='${moment()
+                  .add(TOKEN_VALIDITY_INTERVAL_5, MINUTES)
+                  .format(
+                    "YYYY-MM-DD HH:mm:ss"
+                  )}' WHERE username='${_username}' and token='${_otp}'`
+              )
               .then((result) => {
-                if (result[0] === 1) {
-                  res.status(RESPONSE_STATUS.OK_200).send({
-                    message:
-                      "Proceed with changing password within two hours./दो घंटे के भीतर पासवर्ड बदलने के लिए आगे बढ़ें।",
-                    status: STATUS.SUCCESS,
-                    token: tempToken,
-                  });
+                const [resultUpdated] = result;
+                if (resultUpdated) {
+                  const parsedResult = JSON.parse(
+                    JSON.stringify(resultUpdated)
+                  );
+                  if (parsedResult?.affectedRows > 0) {
+                    res.status(RESPONSE_STATUS.OK_200).send({
+                      message: `Proceed with changing password within ${TOKEN_VALIDITY_INTERVAL_5} ${MINUTES}./${TOKEN_VALIDITY_INTERVAL_5} मिनट के भीतर पासवर्ड बदलने के साथ आगे बढ़ें`,
+                      status: STATUS.SUCCESS,
+                      token: tempToken,
+                    });
+                  } else {
+                    res.status(RESPONSE_STATUS.OK_200).send({
+                      message: "Unable to reset password.",
+                      status: STATUS.FAILURE,
+                    });
+                  }
                 } else {
                   res.status(RESPONSE_STATUS.OK_200).send({
-                    message: "Some issue while resetting credentials",
+                    message: "Unable to reset password.",
                     status: STATUS.FAILURE,
                   });
                 }
@@ -156,7 +165,7 @@ authController.validity = async (req, res) => {
               .catch((e) => {
                 console.trace(e);
                 res.status(RESPONSE_STATUS.OK_200).send({
-                  message: "Unable to reset.",
+                  message: "Unable to reset password.",
                   status: STATUS.FAILURE,
                 });
               });
@@ -184,7 +193,10 @@ authController.validity = async (req, res) => {
     })
     .catch((e) => {
       console.trace(e);
-      res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR_500).send(e);
+      res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR_500).send({
+        message: "Unable to reset password.",
+        status: STATUS.FAILURE,
+      });
     });
 };
 
