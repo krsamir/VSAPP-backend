@@ -3,9 +3,11 @@ import { ROLES } from "../../Constants.js";
 import userController from "../Controllers/userController.js";
 import { isAuthenticated } from "../middleWares/authentication.js";
 import { CAPABILITY } from "../middleWares/authorization.js";
+import { CHECK_TENANT } from "../middleWares/CheckApiAuthority.js";
 
 const userRouter = express.Router();
 userRouter.use(isAuthenticated);
+userRouter.use(CHECK_TENANT);
 
 userRouter
   .route("/")
@@ -21,5 +23,10 @@ userRouter
     CAPABILITY([ROLES.SUPER_ADMIN.VALUE, ROLES.ADMIN.VALUE]),
     userController.updateUser
   );
-userRouter.route("/:id").delete(userController.deleteUser);
+userRouter
+  .route("/:id")
+  .delete(
+    CAPABILITY([ROLES.SUPER_ADMIN.VALUE, ROLES.ADMIN.VALUE]),
+    userController.deleteUser
+  );
 export default userRouter;

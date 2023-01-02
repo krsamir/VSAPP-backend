@@ -17,9 +17,13 @@ const User = sequelize.define(
     password: {
       type: DataTypes.STRING,
       set(value) {
-        const salt = bcryptjs.genSaltSync(10);
-        const hashedPassword = bcryptjs.hashSync(value, salt);
-        this.setDataValue("password", hashedPassword);
+        if (value) {
+          const salt = bcryptjs.genSaltSync(10);
+          const hashedPassword = bcryptjs.hashSync(value, salt);
+          this.setDataValue("password", hashedPassword);
+        } else {
+          this.setDataValue("password", null);
+        }
       },
     },
     mobile: {

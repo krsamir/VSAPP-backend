@@ -1,9 +1,16 @@
 import bcryptjs from "bcryptjs";
 import { Role, User, Tenants } from "../Database/Models/index.js";
 import { sanitizeObject } from "../../Utilities/ObjectHandlers.js";
-import { RESPONSE_STATUS, STATUS, ROLES } from "../../Constants.js";
+import {
+  RESPONSE_STATUS,
+  STATUS,
+  ROLES,
+  TOKEN_VALIDITY_INTERVAL,
+  HOURS,
+} from "../../Constants.js";
 import jwt from "jsonwebtoken";
 import { config } from "dotenv";
+import moment from "moment";
 const authController = {};
 config();
 const { JWT_SECRET, JWT_EXPIRATION_TIME, JWT_EXPIRATION_TIME_ADMIN } =
@@ -103,5 +110,85 @@ authController.login = async (req, res) => {
 export const removeCookies = (res) => {
   res.clearCookie("sid", { path: "/" });
   res.clearCookie("role", { path: "/" });
+};
+
+authController.validity = async (req, res) => {
+  // Check isActive
+  var { username, otp } = req.body;
+  const { _username, _otp } = sanitizeObject({ username, otp });
+  User.findOne({
+    where: {
+      username: _username,
+      token: _otp,
+    },
+  })
+    .then((result) => {
+      if (result) {
+        const { isActive, validTill } = result.toJSON();
+        if (isActive) {
+          const tempToken = Math.random().toString().substring(2, 8);
+          if (moment().isSameOrBefore(moment(validTill))) {
+            User.update(
+              {
+                password: null,
+                token: tempToken,
+                validTill: moment()
+                  .add(TOKEN_VALIDITY_INTERVAL, HOURS)
+                  .format("YYYY-MM-DD HH:mm:ss"),
+              },
+              { where: { username: _username, token: _otp } }
+            )
+              .then((result) => {
+                if (result[0] === 1) {
+                  res.status(RESPONSE_STATUS.OK_200).send({
+                    message:
+                      "Proceed with changing password within two hours./दो घंटे के भीतर पासवर्ड बदलने के लिए आगे बढ़ें।",
+                    status: STATUS.SUCCESS,
+                    token: tempToken,
+                  });
+                } else {
+                  res.status(RESPONSE_STATUS.OK_200).send({
+                    message: "Some issue while resetting credentials",
+                    status: STATUS.FAILURE,
+                  });
+                }
+              })
+              .catch((e) => {
+                console.trace(e);
+                res.status(RESPONSE_STATUS.OK_200).send({
+                  message: "Unable to reset.",
+                  status: STATUS.FAILURE,
+                });
+              });
+          } else {
+            // Token Expired
+            res.status(RESPONSE_STATUS.OK_200).send({
+              message:
+                "OTP Expired. Please request Again./ ओटीपी समाप्त हो गया। कृपया पुनः अनुरोध करें।",
+              status: STATUS.FAILURE,
+            });
+          }
+        } else {
+          res.status(RESPONSE_STATUS.OK_200).send({
+            status: STATUS.FAILURE,
+            message:
+              "You are blocked. Please talk to admin./आपको ब्लॉक कर दिया गया है। कृपया व्यवस्थापक से बात करें।",
+          });
+        }
+      } else {
+        res.status(RESPONSE_STATUS.OK_200).send({
+          status: STATUS.FAILURE,
+          message: "Wrong username and OTP/गलत उपयोगकर्ता नाम और ओटीपी",
+        });
+      }
+    })
+    .catch((e) => {
+      console.trace(e);
+      res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR_500).send(e);
+    });
+};
+
+authController.changePassword = async (req, res) => {
+  res.send({});
 };
 export default authController;

@@ -33,3 +33,6 @@ export const STATUS = Object.freeze({
 });
 
 export const SEQUELIZE_UNIQUE_CONSTRAINT = "SequelizeUniqueConstraintError";
+
+export const TOKEN_VALIDITY_INTERVAL = 2;
+export const HOURS = `hours`;
