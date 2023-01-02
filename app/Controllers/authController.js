@@ -1,17 +1,12 @@
 import bcryptjs from "bcryptjs";
 import { Role, User, Tenants } from "../Database/Models/index.js";
 import { sanitizeObject } from "../../Utilities/ObjectHandlers.js";
-import {
-  RESPONSE_STATUS,
-  STATUS,
-  ROLES,
-  TOKEN_VALIDITY_INTERVAL_5,
-  MINUTES,
-} from "../../Constants.js";
+import { RESPONSE_STATUS, STATUS, ROLES } from "../../Constants.js";
 import jwt from "jsonwebtoken";
 import { config } from "dotenv";
 import moment from "moment";
 import sequelize from "../Database/Database.js";
+
 const authController = {};
 config();
 const { JWT_SECRET, JWT_EXPIRATION_TIME, JWT_EXPIRATION_TIME_ADMIN } =
@@ -82,21 +77,23 @@ authController.login = async (req, res) => {
           } else {
             removeCookies(res);
             res.status(RESPONSE_STATUS.FORBIDDEN_403).send({
-              message: "Wrong username/password.",
+              message:
+                "Wrong username/password./ग़लत उपयोगकर्ता नाम / पासवर्ड।",
               status: STATUS.FAILURE,
             });
           }
         } else {
           removeCookies(res);
           res.status(RESPONSE_STATUS.OK_200).send({
-            message: "You are temprorarily inactive. Please contact admin.",
+            message:
+              "You are temprorarily inactive. Please contact admin./आप अस्थायी रूप से निष्क्रिय हैं। कृपया व्यवस्थापक से संपर्क करें।",
             status: STATUS.FAILURE,
           });
         }
       } else {
         removeCookies(res);
         res.status(RESPONSE_STATUS.FORBIDDEN_403).send({
-          message: "Wrong username/password.",
+          message: "Wrong username/password./ग़लत उपयोगकर्ता नाम / पासवर्ड।",
           status: STATUS.FAILURE,
         });
       }
@@ -115,8 +112,12 @@ export const removeCookies = (res) => {
 
 authController.validity = async (req, res) => {
   // Check isActive
-  var { username, otp } = req.body;
-  const { _username, _otp } = sanitizeObject({ username, otp });
+  var { username, otp, password } = req.body;
+  const { _username, _otp, _password } = sanitizeObject({
+    username,
+    otp,
+    password,
+  });
   User.findOne({
     where: {
       username: _username,
@@ -127,15 +128,12 @@ authController.validity = async (req, res) => {
       if (result) {
         const { isActive, validTill } = result.toJSON();
         if (isActive) {
-          const tempToken = Math.random().toString().substring(2, 8);
           if (moment().isSameOrBefore(moment(validTill))) {
+            const salt = bcryptjs.genSaltSync(10);
+            const hashedPassword = bcryptjs.hashSync(_password, salt);
             await sequelize
               .query(
-                `UPDATE Users SET password=null,username="${_username}",token='${tempToken}',validTill='${moment()
-                  .add(TOKEN_VALIDITY_INTERVAL_5, MINUTES)
-                  .format(
-                    "YYYY-MM-DD HH:mm:ss"
-                  )}' WHERE username='${_username}' and token='${_otp}'`
+                `UPDATE Users SET password='${hashedPassword}',username="${_username}",token=${764320},validTill=${null} WHERE username='${_username}' and token='${_otp}'`
               )
               .then((result) => {
                 const [resultUpdated] = result;
@@ -145,19 +143,20 @@ authController.validity = async (req, res) => {
                   );
                   if (parsedResult?.affectedRows > 0) {
                     res.status(RESPONSE_STATUS.OK_200).send({
-                      message: `Proceed with changing password within ${TOKEN_VALIDITY_INTERVAL_5} ${MINUTES}./${TOKEN_VALIDITY_INTERVAL_5} मिनट के भीतर पासवर्ड बदलने के साथ आगे बढ़ें`,
+                      message: `Password Changed./पासवर्ड बदला गया।`,
                       status: STATUS.SUCCESS,
-                      token: tempToken,
                     });
                   } else {
                     res.status(RESPONSE_STATUS.OK_200).send({
-                      message: "Unable to reset password.",
+                      message:
+                        "Unable to reset password./पासवर्ड रीसेट करने में असमर्थ।",
                       status: STATUS.FAILURE,
                     });
                   }
                 } else {
                   res.status(RESPONSE_STATUS.OK_200).send({
-                    message: "Unable to reset password.",
+                    message:
+                      "Unable to reset password./पासवर्ड रीसेट करने में असमर्थ।",
                     status: STATUS.FAILURE,
                   });
                 }
@@ -165,7 +164,8 @@ authController.validity = async (req, res) => {
               .catch((e) => {
                 console.trace(e);
                 res.status(RESPONSE_STATUS.OK_200).send({
-                  message: "Unable to reset password.",
+                  message:
+                    "Unable to reset password./पासवर्ड रीसेट करने में असमर्थ।",
                   status: STATUS.FAILURE,
                 });
               });
@@ -194,7 +194,7 @@ authController.validity = async (req, res) => {
     .catch((e) => {
       console.trace(e);
       res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR_500).send({
-        message: "Unable to reset password.",
+        message: "Unable to reset password./पासवर्ड रीसेट करने में असमर्थ।",
         status: STATUS.FAILURE,
       });
     });
