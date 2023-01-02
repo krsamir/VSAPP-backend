@@ -1,7 +1,13 @@
 import bcryptjs from "bcryptjs";
 import { Role, User, Tenants } from "../Database/Models/index.js";
 import { sanitizeObject } from "../../Utilities/ObjectHandlers.js";
-import { RESPONSE_STATUS, STATUS, ROLES } from "../../Constants.js";
+import {
+  RESPONSE_STATUS,
+  STATUS,
+  ROLES,
+  TOKEN_VALIDITY_INTERVAL,
+  HOURS,
+} from "../../Constants.js";
 import jwt from "jsonwebtoken";
 import { config } from "dotenv";
 import moment from "moment";
@@ -200,7 +206,48 @@ authController.validity = async (req, res) => {
     });
 };
 
-authController.changePassword = async (req, res) => {
-  res.send({});
+authController.resetToken = async (req, res) => {
+  const { id, username } = req.body;
+  const { _id, _username } = sanitizeObject({ id, username });
+  const token = Math.random().toString().substring(2, 8);
+  const validTill = moment()
+    .add(TOKEN_VALIDITY_INTERVAL, HOURS)
+    .format("YYYY-MM-DD HH:mm:ss");
+  await sequelize
+    .query(
+      `UPDATE Users SET token='${token}',validTill='${validTill}' WHERE username='${_username}' and id=${_id}`
+    )
+    .then((result) => {
+      const [resultUpdated] = result;
+      if (resultUpdated) {
+        const parsedResult = JSON.parse(JSON.stringify(resultUpdated));
+        console.log(parsedResult);
+        if (parsedResult?.affectedRows > 0) {
+          res.status(RESPONSE_STATUS.OK_200).send({
+            message: `Token Changed. Validity extended for ${TOKEN_VALIDITY_INTERVAL} ${HOURS}`,
+            status: STATUS.SUCCESS,
+            token,
+            validTill,
+          });
+        } else {
+          res.status(RESPONSE_STATUS.OK_200).send({
+            message: "Unable to change Token.",
+            status: STATUS.FAILURE,
+          });
+        }
+      } else {
+        res.status(RESPONSE_STATUS.OK_200).send({
+          message: "Unable to change Token.",
+          status: STATUS.FAILURE,
+        });
+      }
+    })
+    .catch((e) => {
+      console.trace(e);
+      res.status(RESPONSE_STATUS.INTERNAL_SERVER_ERROR_500).send({
+        message: "Unable to change Token.",
+        status: STATUS.FAILURE,
+      });
+    });
 };
 export default authController;
