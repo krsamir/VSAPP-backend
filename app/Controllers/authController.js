@@ -133,7 +133,7 @@ authController.validity = async (req, res) => {
             const hashedPassword = bcryptjs.hashSync(_password, salt);
             await sequelize
               .query(
-                `UPDATE Users SET password='${hashedPassword}',username="${_username}",token=${764320},validTill=${null} WHERE username='${_username}' and token='${_otp}'`
+                `UPDATE Users SET password='${hashedPassword}',username="${_username}",token=${null},validTill=${null} WHERE username='${_username}' and token='${_otp}'`
               )
               .then((result) => {
                 const [resultUpdated] = result;
