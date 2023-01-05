@@ -1,12 +1,14 @@
 import { Role, Tenants, User } from "../Database/Models/index.js";
 import { sanitizeObject } from "../../Utilities/ObjectHandlers.js";
 import {
+  ADD_TIME_FORMAT,
   HOURS,
   RESPONSE_STATUS,
   ROLES,
   SEQUELIZE_UNIQUE_CONSTRAINT,
   STATUS,
   TOKEN_VALIDITY_INTERVAL,
+  VIEW_TIME_FORMAT,
 } from "../../Constants.js";
 import { config } from "dotenv";
 import moment from "moment";
@@ -48,9 +50,10 @@ userController.getAllUser = async (req, res) => {
           const parsedvalue = value.toJSON();
           return {
             ...parsedvalue,
-            validTill: moment(parsedvalue.validTill).format(
-              `DD-MMM-YYYY HH:mm:ss`
-            ),
+            token: parsedvalue.token ?? "-",
+            validTill: parsedvalue.validTill
+              ? moment(parsedvalue.validTill).format(VIEW_TIME_FORMAT)
+              : "-",
           };
         });
         res.status(RESPONSE_STATUS.OK_200).send({
@@ -80,7 +83,7 @@ userController.addUser = async (req, res) => {
   const token = Math.random().toString().substring(2, 8);
   const validTill = moment()
     .add(TOKEN_VALIDITY_INTERVAL, HOURS)
-    .format("YYYY-MM-DD HH:mm:ss");
+    .format(ADD_TIME_FORMAT);
   const roleId =
     role === ROLES.SUPER_ADMIN.VALUE ? ROLES.ADMIN.ID : ROLES.USER.ID;
   await User.create({

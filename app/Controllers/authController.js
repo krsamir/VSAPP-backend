@@ -7,6 +7,8 @@ import {
   ROLES,
   TOKEN_VALIDITY_INTERVAL,
   HOURS,
+  ADD_TIME_FORMAT,
+  VIEW_TIME_FORMAT,
 } from "../../Constants.js";
 import jwt from "jsonwebtoken";
 import { config } from "dotenv";
@@ -116,7 +118,7 @@ export const removeCookies = (res) => {
   res.clearCookie("role", { path: "/" });
 };
 
-authController.validity = async (req, res) => {
+authController.changePassword = async (req, res) => {
   // Check isActive
   var { username, otp, password } = req.body;
   const { _username, _otp, _password } = sanitizeObject({
@@ -212,22 +214,21 @@ authController.resetToken = async (req, res) => {
   const token = Math.random().toString().substring(2, 8);
   const validTill = moment()
     .add(TOKEN_VALIDITY_INTERVAL, HOURS)
-    .format("YYYY-MM-DD HH:mm:ss");
+    .format(ADD_TIME_FORMAT);
   await sequelize
     .query(
-      `UPDATE Users SET token='${token}',validTill='${validTill}' WHERE username='${_username}' and id=${_id}`
+      `UPDATE Users SET password=${null}, token='${token}',validTill='${validTill}' WHERE username='${_username}' and id=${_id}`
     )
     .then((result) => {
       const [resultUpdated] = result;
       if (resultUpdated) {
         const parsedResult = JSON.parse(JSON.stringify(resultUpdated));
-        console.log(parsedResult);
         if (parsedResult?.affectedRows > 0) {
           res.status(RESPONSE_STATUS.OK_200).send({
             message: `Token Changed. Validity extended for ${TOKEN_VALIDITY_INTERVAL} ${HOURS}`,
             status: STATUS.SUCCESS,
             token,
-            validTill,
+            validTill: moment(validTill).format(VIEW_TIME_FORMAT),
           });
         } else {
           res.status(RESPONSE_STATUS.OK_200).send({

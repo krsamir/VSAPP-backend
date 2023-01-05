@@ -38,3 +38,5 @@ export const TOKEN_VALIDITY_INTERVAL = 2;
 export const TOKEN_VALIDITY_INTERVAL_5 = 5;
 export const HOURS = `hours`;
 export const MINUTES = "minutes";
+export const VIEW_TIME_FORMAT = `DD-MMM-YYYY HH:mm:ss`;
+export const ADD_TIME_FORMAT = `YYYY-MM-DD HH:mm:ss`;
