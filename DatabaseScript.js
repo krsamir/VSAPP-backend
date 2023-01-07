@@ -1,6 +1,7 @@
 import Tenants from "./app/Database/Models/Tenants.js";
 import Role from "./app/Database/Models/Role.js";
 import User from "./app/Database/Models/User.js";
+import Attendance from "./app/Database/Models/Attendance.js";
 import { ROLES } from "./Constants.js";
 import moment from "moment";
 const Task = {};
@@ -51,6 +52,16 @@ Task.addUserTable = () => {
       })
         .then(() => console.log("Data Created."))
         .catch((e) => console.trace(e));
+    })
+    .catch((e) => {
+      log(e);
+    });
+};
+
+Task.addAttendanceTable = () => {
+  Attendance.sync()
+    .then(() => {
+      log(`Attendance Table Created.`);
     })
     .catch((e) => {
       log(e);

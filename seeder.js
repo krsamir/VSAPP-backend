@@ -31,4 +31,12 @@ yargs.command({
   },
 });
 
+yargs.command({
+  command: "4",
+  describe: "4. Create Attendance Table",
+  handler(argv) {
+    Task.addAttendanceTable();
+  },
+});
+
 yargs.parse();
