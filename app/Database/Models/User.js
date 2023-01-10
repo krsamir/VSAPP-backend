@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
 import bcryptjs from "bcryptjs";
 import sequelize from "../Database.js";
-import Role from "./Role.js";
 import Tenants from "./Tenants.js";
+import Role from "./Role.js";
 
 const User = sequelize.define(
   "User",
@@ -44,8 +44,5 @@ const User = sequelize.define(
   },
   {}
 );
-
-User.belongsTo(Tenants, { as: "tenant" });
-User.belongsTo(Role, { as: "role" });
 
 export default User;

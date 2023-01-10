@@ -1,12 +1,12 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../Database.js";
-import Tenants from "./Tenants.js";
+import User from "./User.js";
 
 const Attendance = sequelize.define(
   "Attendance",
   {
     markedOn: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       defaultValue: DataTypes.NOW,
     },
     status: {
@@ -20,9 +20,14 @@ const Attendance = sequelize.define(
       type: DataTypes.DATE,
     },
   },
-  {}
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ["markedOn", "userId"],
+      },
+    ],
+  }
 );
-
-Attendance.belongsTo(Tenants, { as: "tenant" });
 
 export default Attendance;

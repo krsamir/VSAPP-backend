@@ -1,7 +1,9 @@
-import Tenants from "./app/Database/Models/Tenants.js";
-import Role from "./app/Database/Models/Role.js";
-import User from "./app/Database/Models/User.js";
-import Attendance from "./app/Database/Models/Attendance.js";
+import {
+  User,
+  Attendance,
+  Role,
+  Tenants,
+} from "./app/Database/Models/index.js";
 import { ROLES } from "./Constants.js";
 import moment from "moment";
 const Task = {};

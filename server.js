@@ -2,7 +2,13 @@ import express from "express";
 import env from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import { authRouter, tenantRouter, userRouter } from "./app/Routes/index.js";
+import {
+  authRouter,
+  tenantRouter,
+  userRouter,
+  attendanceRouter,
+} from "./app/Routes/index.js";
+
 env.config();
 const { PORT, NODE_ENV } = process.env;
 const app = express();
@@ -11,7 +17,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use((req, res, next) => {
   const { url, method, body } = req;
-  if (url.match("/auth") || url.match("/tenant") || url.match("/user")) {
+  if (
+    url.match("/auth") ||
+    url.match("/tenant") ||
+    url.match("/user") ||
+    url.match("/calendar")
+  ) {
     console.log(
       `[ METHOD: ${method}  ROUTE: ${url} at ${new Date().toLocaleString()} ]`
     );
@@ -29,6 +40,7 @@ app.use((err, req, res, next) => {
 app.use("/auth", authRouter);
 app.use("/tenant", tenantRouter);
 app.use("/user", userRouter);
+app.use("/calendar", attendanceRouter);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
