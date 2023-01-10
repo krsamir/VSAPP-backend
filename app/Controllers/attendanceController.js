@@ -11,23 +11,30 @@ const attendanceController = {};
 attendanceController.getAttendanceByDate = async (req, res) => {
   const { date } = req.body;
   const { id } = req;
-  Attendance.findOne({ where: { markedOn: date, userId: id } })
-    .then((data) => {
-      if (data) {
-        res.status(RESPONSE_STATUS.OK_200).send({
-          message: "Attendance Marked Already.",
-          attendance: ATTENDANCE_STATUS.DONE,
-          status: STATUS.SUCCESS,
-        });
-      } else {
-        res.status(RESPONSE_STATUS.OK_200).send({
-          message: "Attendance Not Marked.",
-          attendance: ATTENDANCE_STATUS.PENDING,
-          status: STATUS.SUCCESS,
-        });
-      }
-    })
-    .catch((e) => handleError(e, res));
+  if (date) {
+    Attendance.findOne({ where: { markedOn: date ?? null, userId: id } })
+      .then((data) => {
+        if (data) {
+          res.status(RESPONSE_STATUS.OK_200).send({
+            message: "Attendance Marked Already.",
+            attendance: ATTENDANCE_STATUS.DONE,
+            status: STATUS.SUCCESS,
+          });
+        } else {
+          res.status(RESPONSE_STATUS.OK_200).send({
+            message: "Attendance Not Marked.",
+            attendance: ATTENDANCE_STATUS.PENDING,
+            status: STATUS.SUCCESS,
+          });
+        }
+      })
+      .catch((e) => handleError(e, res));
+  } else {
+    res.status(RESPONSE_STATUS.OK_200).send({
+      message: "Some issue while getting today's attendance status.",
+      status: STATUS.FAILURE,
+    });
+  }
 };
 
 attendanceController.markAttendance = (req, res) => {
