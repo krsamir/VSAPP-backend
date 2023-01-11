@@ -1,8 +1,10 @@
+import moment from "moment/moment.js";
 import {
   ATTENDANCE_STATUS,
   RESPONSE_STATUS,
   ROLES,
   STATUS,
+  VIEW_TIME_FORMAT,
 } from "../../Constants.js";
 import { handleError } from "../../Utilities/ResponseHandler.js";
 import { Attendance, User } from "../Database/Models/index.js";
@@ -15,16 +17,25 @@ attendanceController.getAttendanceByDate = async (req, res) => {
     Attendance.findOne({ where: { markedOn: date ?? null, userId: id } })
       .then((data) => {
         if (data) {
+          const { status, approvedBy, ApprovedOn } = data.toJSON();
           res.status(RESPONSE_STATUS.OK_200).send({
             message: "Attendance Marked Already.",
             attendance: ATTENDANCE_STATUS.DONE,
             status: STATUS.SUCCESS,
+            data: {
+              status: status ? "Approved" : "Pending",
+              approvedBy: approvedBy || "-",
+              ApprovedOn: ApprovedOn
+                ? moment(ApprovedOn).format(VIEW_TIME_FORMAT)
+                : "-",
+            },
           });
         } else {
           res.status(RESPONSE_STATUS.OK_200).send({
             message: "Attendance Not Marked.",
             attendance: ATTENDANCE_STATUS.PENDING,
             status: STATUS.SUCCESS,
+            data: null,
           });
         }
       })
