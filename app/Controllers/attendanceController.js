@@ -62,7 +62,7 @@ attendanceController.markAttendance = (req, res) => {
 attendanceController.getAttendanceByAdmin = (req, res) => {
   const { tenant } = req;
   User.findAll({
-    attributes: ["id", "name", "tenantId"],
+    attributes: ["id", "name", "tenantId", "username"],
     include: { model: Attendance, as: "attendance" },
     where: { tenantId: tenant, roleId: ROLES.USER.ID },
   })

@@ -18,7 +18,7 @@ attendanceRouter
   );
 attendanceRouter
   .route("/users")
-  .post(
+  .get(
     CAPABILITY([ROLES.ADMIN.VALUE]),
     attendanceController.getAttendanceByAdmin
   );
