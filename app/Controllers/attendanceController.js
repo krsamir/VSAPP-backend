@@ -8,6 +8,9 @@ import {
 } from "../../Constants.js";
 import { handleError } from "../../Utilities/ResponseHandler.js";
 import { Attendance, User } from "../Database/Models/index.js";
+import { Op } from "sequelize";
+import sequelize from "../Database/Database.js";
+import { sanitizeObject } from "../../Utilities/ObjectHandlers.js";
 const attendanceController = {};
 
 attendanceController.getAttendanceByDate = async (req, res) => {
@@ -60,11 +63,28 @@ attendanceController.markAttendance = (req, res) => {
 };
 
 attendanceController.getAttendanceByAdmin = (req, res) => {
+  const { month, year } = req.query;
+  const { _month, _year } = sanitizeObject({ month, year });
+
   const { tenant } = req;
+
   User.findAll({
     attributes: ["id", "name", "tenantId", "username"],
-    include: { model: Attendance, as: "attendance" },
-    where: { tenantId: tenant, roleId: ROLES.USER.ID },
+    include: {
+      model: Attendance,
+      as: "attendance",
+      where: {
+        [Op.all]: sequelize.literal(
+          `month(markedon) = '${_month}' AND year(markedon) = '${_year}'`
+        ),
+      },
+      required: false,
+      right: false,
+    },
+    where: {
+      tenantId: tenant,
+      roleId: ROLES.USER.ID,
+    },
   })
     .then((data) => {
       res.status(RESPONSE_STATUS.OK_200).send({
