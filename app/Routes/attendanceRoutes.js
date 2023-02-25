@@ -23,4 +23,18 @@ attendanceRouter
     attendanceController.getAttendanceByAdmin
   );
 
+attendanceRouter
+  .route(`/approve`)
+  .post(
+    CAPABILITY([ROLES.ADMIN.VALUE]),
+    attendanceController.approveAttendance
+  );
+
+attendanceRouter
+  .route(`/present`)
+  .post(
+    CAPABILITY([ROLES.ADMIN.VALUE]),
+    attendanceController.regularizeAttendance
+  );
+
 export default attendanceRouter;

@@ -21,6 +21,7 @@ const Attendance = sequelize.define(
     },
   },
   {
+    updatedAt: false,
     indexes: [
       {
         unique: true,

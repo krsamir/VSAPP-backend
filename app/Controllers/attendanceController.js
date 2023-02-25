@@ -1,5 +1,6 @@
 import moment from "moment/moment.js";
 import {
+  ADD_TIME_FORMAT,
   ATTENDANCE_STATUS,
   RESPONSE_STATUS,
   ROLES,
@@ -8,7 +9,7 @@ import {
 } from "../../Constants.js";
 import { handleError } from "../../Utilities/ResponseHandler.js";
 import { Attendance, User } from "../Database/Models/index.js";
-import { Op } from "sequelize";
+import { DataTypes, Op } from "sequelize";
 import sequelize from "../Database/Database.js";
 import { sanitizeObject } from "../../Utilities/ObjectHandlers.js";
 const attendanceController = {};
@@ -94,6 +95,51 @@ attendanceController.getAttendanceByAdmin = (req, res) => {
       });
     })
     .catch((e) => handleError(e, res));
+};
+
+attendanceController.approveAttendance = (req, res) => {
+  const { tenant = "", username = "" } = req;
+  const { user: { id, tenantId } = { id: null, tenantId: null }, data = [] } =
+    req.body;
+  const { _id, _tenantId } = sanitizeObject({ id, tenantId });
+  const updationTime = moment().format(ADD_TIME_FORMAT);
+  if (tenant === _tenantId) {
+    sequelize
+      .query(
+        `UPDATE attendances SET approvedBy="${username}",ApprovedOn="${updationTime}",status=${true} WHERE UserId = ${_id} AND ID IN (${data.join(
+          `,`
+        )}) AND status=false`
+      )
+      .then((response) => {
+        const [_, metadata = {}] = response;
+        if (metadata.affectedRows > 0) {
+          res.status(RESPONSE_STATUS.OK_200).send({
+            status: STATUS.SUCCESS,
+            approver: username,
+            updationTime,
+            message:
+              (data ?? "").length === metadata.affectedRows
+                ? `All Attendance approved successfully.`
+                : `Attendance partially Updated.`,
+          });
+        } else {
+          res.status(RESPONSE_STATUS.OK_200).send({
+            status: STATUS.FAILURE,
+            message: `Unable to approve attendance.`,
+          });
+        }
+      })
+      .catch((e) => handleError(e, res));
+  } else {
+    res.status(RESPONSE_STATUS.FORBIDDEN_403).send({
+      status: STATUS.FAILURE,
+      message: "Unauthorized to Approve Attendance.",
+    });
+  }
+};
+
+attendanceController.regularizeAttendance = (req, res) => {
+  res.send([]);
 };
 
 export default attendanceController;
